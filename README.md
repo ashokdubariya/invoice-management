@@ -4,17 +4,17 @@ A complete invoice management tool built with PHP, MySQL, TailwindCSS, and Alpin
 
 ## Features
 
-- ✅ **Authentication System** - Secure login/logout with session management
-- ✅ **Client Management** - Add, edit, delete clients with search and pagination
-- ✅ **Currency Management** - Multi-currency support with exchange rates
-- ✅ **Invoice Management** - Create, edit, delete invoices with line items
-- ✅ **Dynamic Line Items** - Add/remove items with live total calculations (Alpine.js)
-- ✅ **PDF Export** - Generate professional PDF invoices with DOMPDF
-- ✅ **Dashboard** - Statistics and recent invoices overview
-- ✅ **Company Settings** - Manage company profile and logo
-- ✅ **Dark Mode** - Toggle between light and dark themes
-- ✅ **Responsive Design** - Works on desktop, tablet, and mobile
-- ✅ **CSV Export** - Export client list to CSV
+✅ **Authentication System** - Secure login/logout with session management
+✅ **Client Management** - Add, edit, delete clients with search and pagination
+✅ **Currency Management** - Multi-currency support with exchange rates
+✅ **Invoice Management** - Create, edit, delete invoices with line items
+✅ **Dynamic Line Items** - Add/remove items with live total calculations (Alpine.js)
+✅ **PDF Export** - Generate professional PDF invoices with DOMPDF
+✅ **Dashboard** - Statistics and recent invoices overview
+✅ **Company Settings** - Manage company profile and logo
+✅ **Dark Mode** - Toggle between light and dark themes
+✅ **Responsive Design** - Works on desktop, tablet, and mobile
+✅ **CSV Export** - Export client list to CSV
 
 ## Requirements
 
@@ -214,12 +214,12 @@ The system comes with:
 
 ## Troubleshooting
 
-### "Database connection failed"
+### Database connection failed
 - Check database credentials in `db/config.php`
 - Ensure MySQL is running
 - Verify database exists
 
-### "Please run composer install"
+### Please run composer install
 - Run `composer install` in the project directory
 - Ensure Composer is installed globally
 
