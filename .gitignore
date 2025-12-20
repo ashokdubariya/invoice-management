@@ -1,0 +1,4 @@
+.DS_Store
+*.log
+public/assets/uploads/*
+!public/assets/uploads/.gitkeep
