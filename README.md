@@ -145,7 +145,7 @@ invoice-management/
 
 ### Creating an Invoice
 
-1. Navigate to **Invoices** → **Create Invoice**
+1. Navigate to **Invoices** > **Create Invoice**
 2. Select a client and currency
 3. Add line items (click "Add Item" to add more rows)
 4. Enter quantity, price, and tax percentage
@@ -180,37 +180,6 @@ invoice-management/
 2. Upload company logo
 3. Update company information
 4. Click **Save Settings**
-
-## Features in Detail
-
-### Alpine.js Dynamic Forms
-
-The invoice form uses Alpine.js for:
-- Adding/removing line items dynamically
-- Live calculation of subtotals, taxes, and totals
-- Reactive updates without page refresh
-
-### Security Features
-
-- CSRF protection on all forms
-- Prepared statements (PDO) to prevent SQL injection
-- Password hashing with `password_hash()`
-- Input sanitization
-- Session management
-
-### Responsive Design
-
-- Mobile-first approach with TailwindCSS
-- Collapsible sidebar on mobile
-- Touch-friendly buttons and forms
-- Optimized tables for small screens
-
-## Default Data
-
-The system comes with:
-- 1 admin user (username: `admin`, password: `admin123`)
-- 4 default currencies (USD, EUR, GBP, INR)
-- Default company settings
 
 ## Troubleshooting
 
