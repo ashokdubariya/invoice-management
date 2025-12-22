@@ -12,6 +12,7 @@ A complete invoice management tool built with PHP, MySQL, TailwindCSS, and Alpin
 - **PDF Export** - Generate professional PDF invoices with DOMPDF
 - **Dashboard** - Statistics and recent invoices overview
 - **Company Settings** - Manage company profile and logo
+- **Banking Details** - Banking settings page with tabbed interface for **USD**, **GBP**, and **INR**
 - **Dark Mode** - Toggle between light and dark themes
 - **Responsive Design** - Works on desktop, tablet, and mobile
 - **CSV Export** - Export client list to CSV
@@ -87,60 +88,6 @@ Open your browser and navigate to:
 - **Username**: `admin`
 - **Password**: `admin123`
 
-## Project Structure
-
-```
-invoice-management/
-├── components/          # Reusable UI components
-│   ├── header.php
-│   ├── navbar.php
-│   ├── sidebar.php
-│   ├── notification.php
-│   ├── modal.php
-│   └── footer.php
-├── controllers/         # Application controllers
-│   ├── BaseController.php
-│   ├── AuthController.php
-│   ├── DashboardController.php
-│   ├── ClientController.php
-│   ├── CurrencyController.php
-│   ├── InvoiceController.php
-│   ├── SettingsController.php
-│   └── PDFController.php
-├── db/                  # Database files
-│   ├── config.php
-│   ├── Database.php
-│   └── schema.sql
-├── models/              # Data models
-│   ├── BaseModel.php
-│   ├── User.php
-│   ├── Client.php
-│   ├── Currency.php
-│   ├── Invoice.php
-│   ├── InvoiceItem.php
-│   └── Setting.php
-├── public/              # Public directory (document root)
-│   ├── assets/
-│   │   ├── css/
-│   │   ├── js/
-│   │   ├── images/
-│   │   └── uploads/
-│   ├── .htaccess
-│   ├── index.php
-│   ├── Router.php
-│   └── helpers.php
-├── views/               # View templates
-│   ├── auth/
-│   ├── clients/
-│   ├── currencies/
-│   ├── dashboard/
-│   ├── invoices/
-│   ├── settings/
-│   └── pdf/
-├── vendor/              # Composer dependencies
-└── composer.json
-```
-
 ## Usage
 
 ### Creating an Invoice
@@ -180,6 +127,12 @@ invoice-management/
 2. Upload company logo
 3. Update company information
 4. Click **Save Settings**
+
+### Manage Banking Details
+
+1. Click **Banking Details** in the sidebar
+2. Configure banking info for **USD**, **GBP**, and **INR**
+3. Click **Save Banking Details**
 
 ## Troubleshooting
 

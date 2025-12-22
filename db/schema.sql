@@ -101,7 +101,28 @@ INSERT INTO settings (setting_key, setting_value) VALUES
 ('company_email', 'info@yourcompany.com'),
 ('company_website', 'www.yourcompany.com'),
 ('company_tax_number', 'TAX123456789'),
-('company_logo', '')
+('company_logo', ''),
+-- Banking details for USD
+('bank_usd_account_holder', ''),
+('bank_usd_account_number', ''),
+('bank_usd_routing_ach', ''),
+('bank_usd_wire_routing', ''),
+('bank_usd_swift_bic', ''),
+('bank_usd_bank_name', ''),
+('bank_usd_bank_address', ''),
+-- Banking details for GBP
+('bank_gbp_account_holder', ''),
+('bank_gbp_account_number', ''),
+('bank_gbp_iban', ''),
+('bank_gbp_sort_code', ''),
+('bank_gbp_swift_bic', ''),
+('bank_gbp_bank_name', ''),
+('bank_gbp_bank_address', ''),
+-- Banking details for INR
+('bank_inr_bank_name', ''),
+('bank_inr_account_name', ''),
+('bank_inr_account_number', ''),
+('bank_inr_ifsc_code', '')
 ON DUPLICATE KEY UPDATE setting_key=setting_key;
 
 -- Insert default currencies

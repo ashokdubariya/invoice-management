@@ -199,6 +199,57 @@
         </div>
     <?php endif; ?>
 
+    <!-- Banking Details -->
+    <?php
+    $currencyCode = $invoice['currency_code'];
+    $showBanking = false;
+    $bankingDetails = [];
+    
+    // Check which currency and prepare banking details
+    if ($currencyCode === 'USD') {
+        $showBanking = !empty($settings['bank_usd_account_holder']) || !empty($settings['bank_usd_account_number']);
+        $bankingDetails = [
+            'Account Holder' => $settings['bank_usd_account_holder'] ?? '',
+            'Account Number' => $settings['bank_usd_account_number'] ?? '',
+            'Routing Number (ACH or ABA)' => $settings['bank_usd_routing_ach'] ?? '',
+            'Wire Routing Number' => $settings['bank_usd_wire_routing'] ?? '',
+            'Swift/BIC' => $settings['bank_usd_swift_bic'] ?? '',
+            'Bank Name' => $settings['bank_usd_bank_name'] ?? '',
+            'Bank Address' => $settings['bank_usd_bank_address'] ?? ''
+        ];
+    } elseif ($currencyCode === 'GBP') {
+        $showBanking = !empty($settings['bank_gbp_account_holder']) || !empty($settings['bank_gbp_account_number']);
+        $bankingDetails = [
+            'Account Holder' => $settings['bank_gbp_account_holder'] ?? '',
+            'Account Number' => $settings['bank_gbp_account_number'] ?? '',
+            'IBAN' => $settings['bank_gbp_iban'] ?? '',
+            'UK Sort Code' => $settings['bank_gbp_sort_code'] ?? '',
+            'Swift/BIC' => $settings['bank_gbp_swift_bic'] ?? '',
+            'Bank Name' => $settings['bank_gbp_bank_name'] ?? '',
+            'Bank Address' => $settings['bank_gbp_bank_address'] ?? ''
+        ];
+    } elseif ($currencyCode === 'INR') {
+        $showBanking = !empty($settings['bank_inr_bank_name']) || !empty($settings['bank_inr_account_number']);
+        $bankingDetails = [
+            'Bank Name' => $settings['bank_inr_bank_name'] ?? '',
+            'Account Name' => $settings['bank_inr_account_name'] ?? '',
+            'Account Number' => $settings['bank_inr_account_number'] ?? '',
+            'IFSC Code' => $settings['bank_inr_ifsc_code'] ?? ''
+        ];
+    }
+    ?>
+    
+    <?php if ($showBanking): ?>
+        <div class="notes" style="margin-top: 30px;">
+            <h4 style="margin: 0 0 10px 0;">Banking Details:</h4>
+            <?php foreach ($bankingDetails as $label => $value): ?>
+                <?php if (!empty($value)): ?>
+                    <p style="margin: 3px 0;"><strong><?= e($label) ?>:</strong> <?= nl2br(e($value)) ?></p>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
     <!-- Footer -->
     <div class="footer">
         <p>Thank you for your business!</p>

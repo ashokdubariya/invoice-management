@@ -16,6 +16,7 @@ require_once __DIR__ . '/../controllers/CurrencyController.php';
 require_once __DIR__ . '/../controllers/InvoiceController.php';
 require_once __DIR__ . '/../controllers/SettingsController.php';
 require_once __DIR__ . '/../controllers/PDFController.php';
+require_once __DIR__ . '/../controllers/BankingController.php';
 
 // Initialize router
 $router = new Router();
@@ -62,6 +63,10 @@ $router->get('/invoices/pdf', [PDFController::class, 'generate']);
 // Settings
 $router->get('/settings', [SettingsController::class, 'index']);
 $router->post('/settings/update', [SettingsController::class, 'update']);
+
+// Banking Settings
+$router->get('/settings/banking', [BankingController::class, 'index']);
+$router->post('/settings/banking/update', [BankingController::class, 'update']);
 
 // Dispatch the request
 $router->dispatch();
