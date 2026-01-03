@@ -109,6 +109,117 @@
                     </div>
                 </div>
 
+                <!-- Payment Summary Card -->
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 shadow sm:rounded-lg p-6 mb-6 border border-green-200 dark:border-green-800">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Payment Summary</h3>
+                        <button @click="Alpine.$data(document.querySelector('[x-data*=paymentModal]')).openModal(<?= $invoice['id'] ?>, <?= $invoice['outstanding_balance'] ?? $invoice['total_amount'] ?>, '<?= $invoice['currency_symbol'] ?? '$' ?>')"
+                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Record Payment
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Amount</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                                <?= formatCurrency($invoice['total_amount'], $invoice['currency_symbol']) ?>
+                            </p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Paid</p>
+                            <p class="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">
+                                <?= formatCurrency($invoice['amount_paid'] ?? 0, $invoice['currency_symbol']) ?>
+                            </p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Outstanding</p>
+                            <p class="text-2xl font-bold text-orange-600 dark:text-orange-400 mt-1">
+                                <?= formatCurrency($invoice['outstanding_balance'] ?? $invoice['total_amount'], $invoice['currency_symbol']) ?>
+                            </p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Payment Status</p>
+                            <div class="mt-1">
+                                <?= getStatusBadge($invoice['status']) ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment History -->
+                <?php if (!empty($payments)): ?>
+                    <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg overflow-hidden mb-6">
+                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Payment History</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1"><?= count($payments) ?> payment(s) recorded</p>
+                        </div>
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Method</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Reference</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Notes</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <?php foreach ($payments as $payment): ?>
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                            <?= formatDate($payment['payment_date']) ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600 dark:text-green-400">
+                                            <?= formatCurrency($payment['amount'], $invoice['currency_symbol']) ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                                                <?= e($payment['payment_method']) ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                            <?= e($payment['reference_number'] ?? '-') ?>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                            <?= e($payment['notes'] ? (strlen($payment['notes']) > 30 ? substr($payment['notes'], 0, 30) . '...' : $payment['notes']) : '-') ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <form method="POST" action="<?= url('/payments/delete') ?>" class="inline" 
+                                                  onsubmit="return confirm('Are you sure you want to delete this payment? This will update the invoice status.');">
+                                                <input type="hidden" name="payment_id" value="<?= $payment['id'] ?>">
+                                                <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6 mb-6 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No payments recorded</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by recording the first payment for this invoice.</p>
+                        <div class="mt-6">
+                            <button @click="Alpine.$data(document.querySelector('[x-data*=paymentModal]')).openModal(<?= $invoice['id'] ?>, <?= $invoice['outstanding_balance'] ?? $invoice['total_amount'] ?>, '<?= $invoice['currency_symbol'] ?? '$' ?>')"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                                <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Record First Payment
+                            </button>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <!-- Notes -->
                 <?php if (!empty($invoice['notes'])): ?>
                     <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
@@ -131,4 +242,5 @@
     </div>
 </div>
 
+<?php require_once __DIR__ . '/../../components/payment-modal.php'; ?>
 <?php require_once __DIR__ . '/../../components/footer.php'; ?>

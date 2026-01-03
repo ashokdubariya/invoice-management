@@ -41,6 +41,11 @@ class PDFController extends BaseController {
         $items = $this->invoiceItemModel->getByInvoice($id);
         $settings = $this->settingModel->getAllSettings();
         
+        // Load payment data
+        require_once __DIR__ . '/../models/Payment.php';
+        $paymentModel = new Payment();
+        $payments = $paymentModel->getByInvoice($id);
+        
         // Generate HTML
         ob_start();
         include __DIR__ . '/../views/pdf/invoice-template.php';

@@ -89,6 +89,29 @@
             border-top: 1px solid #e5e7eb;
             padding-top: 20px;
         }
+        .payment-info {
+            margin-top: 30px;
+            padding: 15px;
+            background: #f0fdf4;
+            border-left: 3px solid #10B981;
+        }
+        .payment-history {
+            margin-top: 20px;
+        }
+        .payment-history table {
+            font-size: 11px;
+        }
+        .paid-watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 120px;
+            font-weight: bold;
+            color: rgba(16, 185, 129, 0.1);
+            z-index: -1;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -191,6 +214,69 @@
 
     <div class="clearfix"></div>
 
+    <?php
+    // Add PAID watermark if invoice is fully paid
+    if ($invoice['status'] === 'Paid' || ($invoice['outstanding_balance'] ?? $invoice['total_amount']) <= 0): ?>
+        <div class="paid-watermark">PAID</div>
+    <?php endif; ?>
+
+    <!-- Payment Information -->
+    <?php
+    $amountPaid = $invoice['amount_paid'] ?? 0;
+    $outstandingBalance = $invoice['outstanding_balance'] ?? ($invoice['total_amount'] - $amountPaid);
+    
+    if ($amountPaid > 0):
+    ?>
+        <div class="payment-info">
+            <h4 style="margin: 0 0 10px 0; color: #10B981;">Payment Information</h4>
+            <table style="margin: 0;">
+                <tr>
+                    <td style="border: none; padding: 3px 0;"><strong>Total Amount:</strong></td>
+                    <td style="border: none; padding: 3px 0; text-align: right;"><?= formatCurrency($invoice['total_amount'], $invoice['currency_symbol']) ?></td>
+                </tr>
+                <tr>
+                    <td style="border: none; padding: 3px 0;"><strong>Amount Paid:</strong></td>
+                    <td style="border: none; padding: 3px 0; text-align: right; color: #10B981; font-weight: bold;"><?= formatCurrency($amountPaid, $invoice['currency_symbol']) ?></td>
+                </tr>
+                <tr style="border-top: 2px solid #10B981;">
+                    <td style="border: none; padding: 8px 0 3px 0;"><strong>Outstanding Balance:</strong></td>
+                    <td style="border: none; padding: 8px 0 3px 0; text-align: right; font-weight: bold; font-size: 14px; color: <?= $outstandingBalance > 0 ? '#F59E0B' : '#10B981' ?>;">
+                        <?= formatCurrency($outstandingBalance, $invoice['currency_symbol']) ?>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <?php
+        // Load payment history if available
+        if (isset($payments) && !empty($payments)):
+        ?>
+            <div class="payment-history">
+                <h4 style="margin: 0 0 10px 0;">Payment History</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($payments as $payment): ?>
+                            <tr>
+                                <td><?= formatDate($payment['payment_date']) ?></td>
+                                <td><?= formatCurrency($payment['amount'], $invoice['currency_symbol']) ?></td>
+                                <td><?= e($payment['payment_method']) ?></td>
+                                <td><?= e($payment['reference_number'] ?? '-') ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+
     <!-- Notes -->
     <?php if (!empty($invoice['notes'])): ?>
         <div class="notes">
@@ -251,11 +337,11 @@
     <?php endif; ?>
 
     <!-- Footer -->
-    <div class="footer">
+    <?php /* <div class="footer">
         <p>Thank you for your business!</p>
         <?php if (!empty($settings['company_website'])): ?>
             <p><?= e($settings['company_website']) ?></p>
         <?php endif; ?>
-    </div>
+    </div> */ ?>
 </body>
 </html>

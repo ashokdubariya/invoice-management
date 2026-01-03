@@ -35,7 +35,7 @@ class InvoiceController extends BaseController {
         ];
         
         $perPage = 10;
-        $invoices = $this->invoiceModel->getWithDetails($page, $perPage, $filters);
+        $invoices = $this->invoiceModel->getWithPaymentDetails($page, $perPage, $filters);
         $totalInvoices = $this->invoiceModel->countWithFilters($filters);
         $totalPages = ceil($totalInvoices / $perPage);
         
@@ -96,17 +96,30 @@ class InvoiceController extends BaseController {
         $totalAmount = $subtotal + $taxAmount - $discountAmount;
         
         // Create invoice
+        $status = $_POST['status'] ?? 'Draft';
+        
+        // Initialize payment fields based on status
+        $amountPaid = 0;
+        $outstandingBalance = $totalAmount;
+        
+        if ($status === 'Paid') {
+            $amountPaid = $totalAmount;
+            $outstandingBalance = 0;
+        }
+        
         $invoiceData = [
             'invoice_number' => $this->sanitize($_POST['invoice_number']),
             'client_id' => (int)$_POST['client_id'],
             'currency_id' => (int)$_POST['currency_id'],
             'invoice_date' => $_POST['invoice_date'],
             'due_date' => $_POST['due_date'],
-            'status' => $_POST['status'] ?? 'Draft',
+            'status' => $status,
             'subtotal' => $subtotal,
             'tax_amount' => $taxAmount,
             'discount_amount' => $discountAmount,
             'total_amount' => $totalAmount,
+            'amount_paid' => $amountPaid,
+            'outstanding_balance' => $outstandingBalance,
             'notes' => $this->sanitize($_POST['notes'] ?? '')
         ];
         
@@ -196,17 +209,56 @@ class InvoiceController extends BaseController {
         $totalAmount = $subtotal + $taxAmount - $discountAmount;
         
         // Update invoice
+        $status = $_POST['status'] ?? 'Draft';
+        
+        // Get current invoice to preserve payment data from payment records
+        $currentInvoice = $this->invoiceModel->find($id);
+        $amountPaid = $currentInvoice['amount_paid'] ?? 0;
+        $outstandingBalance = $totalAmount - $amountPaid;
+        
+        // If manually changing status to Paid and no payments exist, set amounts accordingly
+        if ($status === 'Paid' && $amountPaid == 0) {
+            $amountPaid = $totalAmount;
+            $outstandingBalance = 0;
+        }
+        // If status changed from Paid to something else and amount_paid equals old total, reset it
+        elseif ($status !== 'Paid' && $amountPaid == $currentInvoice['total_amount'] && $outstandingBalance == 0) {
+            // Check if there are actual payment records
+            require_once __DIR__ . '/../models/Payment.php';
+            $paymentModel = new Payment();
+            $actualPaid = $paymentModel->getTotalPaid($id);
+            
+            if ($actualPaid == 0) {
+                // No actual payments, reset the amounts
+                $amountPaid = 0;
+                $outstandingBalance = $totalAmount;
+                if ($status === 'Draft' || $status === 'Sent') {
+                    $status = $status; // Keep the selected status
+                }
+            } else {
+                // Has actual payments, recalculate
+                $amountPaid = $actualPaid;
+                $outstandingBalance = $totalAmount - $actualPaid;
+            }
+        }
+        // Recalculate outstanding balance if total changed
+        else {
+            $outstandingBalance = $totalAmount - $amountPaid;
+        }
+        
         $invoiceData = [
             'invoice_number' => $this->sanitize($_POST['invoice_number']),
             'client_id' => (int)$_POST['client_id'],
             'currency_id' => (int)$_POST['currency_id'],
             'invoice_date' => $_POST['invoice_date'],
             'due_date' => $_POST['due_date'],
-            'status' => $_POST['status'] ?? 'Draft',
+            'status' => $status,
             'subtotal' => $subtotal,
             'tax_amount' => $taxAmount,
             'discount_amount' => $discountAmount,
             'total_amount' => $totalAmount,
+            'amount_paid' => $amountPaid,
+            'outstanding_balance' => $outstandingBalance,
             'notes' => $this->sanitize($_POST['notes'] ?? '')
         ];
         
@@ -270,6 +322,12 @@ class InvoiceController extends BaseController {
         
         $items = $this->invoiceItemModel->getByInvoice($id);
         
-        $this->view('invoices/view', compact('invoice', 'items'));
+        // Load payment data
+        require_once __DIR__ . '/../models/Payment.php';
+        $paymentModel = new Payment();
+        $payments = $paymentModel->getByInvoice($id);
+        $paymentMethods = Payment::getPaymentMethods();
+        
+        $this->view('invoices/view', compact('invoice', 'items', 'payments', 'paymentMethods'));
     }
 }

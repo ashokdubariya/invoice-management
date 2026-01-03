@@ -116,19 +116,22 @@ class Invoice extends BaseModel {
     public function getStatistics() {
         $stats = [];
         
-        // Today's revenue
-        $stmt = $this->db->query("SELECT SUM(total_amount) as revenue FROM {$this->table} WHERE invoice_date = CURDATE() AND status = 'Paid'");
-        $result = $stmt->fetch();
-        $stats['today_revenue'] = $result['revenue'] ?? 0;
+        // Note: Today's revenue is now calculated from actual payments in Payment model
+        // This is kept for backward compatibility but not used in dashboard
         
         // Total invoices
         $stats['total_invoices'] = $this->count();
         
-        // Pending invoices
-        $stats['pending_invoices'] = $this->count("status IN ('Draft', 'Sent')");
+        // Pending invoices (including partially paid)
+        $stats['pending_invoices'] = $this->count("status IN ('Draft', 'Sent', 'Partially Paid')");
         
         // Overdue invoices
         $stats['overdue_invoices'] = $this->count("status != 'Paid' AND due_date < CURDATE()");
+        
+        // Total outstanding balance
+        $stmt = $this->db->query("SELECT COALESCE(SUM(outstanding_balance), 0) as outstanding FROM {$this->table} WHERE status != 'Paid'");
+        $result = $stmt->fetch();
+        $stats['total_outstanding'] = $result['outstanding'] ?? 0;
         
         return $stats;
     }
@@ -145,6 +148,59 @@ class Invoice extends BaseModel {
                 LIMIT ?";
         
         $stmt = $this->query($sql, [$limit]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Get outstanding balance for an invoice
+     */
+    public function getOutstandingBalance($invoiceId) {
+        $invoice = $this->findById($invoiceId);
+        if (!$invoice) {
+            return 0;
+        }
+        
+        return $invoice['outstanding_balance'] ?? ($invoice['total_amount'] - ($invoice['amount_paid'] ?? 0));
+    }
+
+    /**
+     * Get invoice with payment details
+     */
+    public function getWithPaymentDetails($page = 1, $perPage = 10, $filters = []) {
+        $offset = ($page - 1) * $perPage;
+        
+        $sql = "SELECT i.*, c.name as client_name, cur.code as currency_code, cur.symbol as currency_symbol,
+                i.amount_paid, i.outstanding_balance,
+                (SELECT COUNT(*) FROM payments p WHERE p.invoice_id = i.id) as payment_count
+                FROM {$this->table} i
+                LEFT JOIN clients c ON i.client_id = c.id
+                LEFT JOIN currencies cur ON i.currency_id = cur.id
+                WHERE 1=1";
+        
+        $params = [];
+        
+        if (!empty($filters['status'])) {
+            $sql .= " AND i.status = ?";
+            $params[] = $filters['status'];
+        }
+        
+        if (!empty($filters['client_id'])) {
+            $sql .= " AND i.client_id = ?";
+            $params[] = $filters['client_id'];
+        }
+        
+        if (!empty($filters['search'])) {
+            $sql .= " AND (i.invoice_number LIKE ? OR c.name LIKE ?)";
+            $searchTerm = "%{$filters['search']}%";
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+        }
+        
+        $sql .= " ORDER BY i.created_at DESC LIMIT ? OFFSET ?";
+        $params[] = $perPage;
+        $params[] = $offset;
+        
+        $stmt = $this->query($sql, $params);
         return $stmt->fetchAll();
     }
 }

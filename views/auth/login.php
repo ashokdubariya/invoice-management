@@ -49,9 +49,9 @@
                 </button>
             </div>
             
-            <div class="text-center text-sm text-gray-600 dark:text-gray-400">
-                <p class="font-mono">Username: <strong>admin</strong> | Password: <strong>admin123</strong></p>
-            </div>
+            <?php /* <div class="text-center text-sm text-gray-600 dark:text-gray-400">
+                <p class="font-mono">Username: <strong>ashok</strong> | Password: <strong>admin1223</strong></p>
+            </div> */ ?>
         </form>
     </div>
 </div>
